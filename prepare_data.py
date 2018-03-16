@@ -5,38 +5,50 @@
 
 # classify failed_next_day as 0 or 1 based on first day attributes
 
-
 import csv
 import pdb
 
-failure_col = 4
-serial_col = 1
+def failures_for_file(filename):
+    failures = {}
+    with open(filename, 'r') as csvfile:
+        datareader = csv.DictReader(csvfile, delimiter=',', quotechar='|')
+        # header = datareader.__next__()
+        for row in datareader:
+            serial_number = row['serial_number']
+            failure_status = row['failure']
+            failures[serial_number] = failure_status
+    return failures
+
+def fails_next_day(serial_no):
+    return next_day_failures[serial_no]
+
+def write_curr_day_with_failures(failures_dict={}, curr_day_filename='', output_filename=''):
+    with open(curr_day_filename, 'r') as curr_day_csv_file: # open current day file
+        with open(output_filename, 'w') as outfile: # open output file
+            datareader = csv.DictReader(curr_day_csv_file, delimiter=',', quotechar='|')
+
+            output_fieldnames = datareader.fieldnames
+            output_fieldnames.append('fails_next_day')
+
+            datawriter = csv.DictWriter(outfile, output_fieldnames, delimiter=',', quotechar='|')
+
+            datawriter.writeheader()
+            for row in datareader:
+                serial_number = row['serial_number']
+                if serial_number in next_day_failures:
+                    fails_next_day = next_day_failures[serial_number]
+                    row['fails_next_day'] = fails_next_day
+                    datawriter.writerow(row)
 
 # january
 # for day in range(1,31)
-day1file = 'data/2017-01-01.csv'
-day2file = 'data/2017-01-02.csv'
-outputfile = 'data/2017-01-01fn.csv' # day 1 with fails next day appended
+curr_day_filename = '../hd-data/2017-01-01.csv'
+next_day_filename = '../hd-data/2017-01-02.csv'
+output_filename = '../hd-data/2017-01-01fn.csv' # day 1 with fails next day appended
 
-def failures_for_day(filename):
-    failures = {}
-    with open(filename, 'r') as csvfile:
-        datareader = csv.reader(csvfile, delimiter=',', quotechar='|')
-        for row in datareader:
-            serial_num = row[serial_col]
-            failure_status = row[failure_col]
-            failures[serial_num] = failure_status
-    return failures
+next_day_failures = failures_for_file(next_day_filename)
 
-
-day2failures = failures_for_day(day2file)
-
-with open(day1file, 'r') as csvfile:
-    with open(outputfile, 'w+') as outfile:
-        datareader = csv.reader(csvfile, delimiter=',', quotechar='|')
-        datawriter = csv.writer(outfile, delimiter=',', quotechar='|')
-        pdb.set_trace()
-
+write_curr_day_with_failures(next_day_failures, curr_day_filename, output_filename)
 
 pdb.set_trace()
 
