@@ -49,7 +49,3 @@ output_filename = '../hd-data/2017-01-01fn.csv' # day 1 with fails next day appe
 next_day_failures = failures_for_file(next_day_filename)
 
 write_curr_day_with_failures(next_day_failures, curr_day_filename, output_filename)
-
-pdb.set_trace()
-
-# with open(outputfile, 'w') as csvfile:
