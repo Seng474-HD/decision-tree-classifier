@@ -12,6 +12,7 @@ import os
 DATA_DIR = '../hd-data'
 OUTPUT_DIR = '../hd-data/output'
 
+
 def failures_for_file(filename):
     failures = {}
     with open(filename, 'r') as csvfile:
@@ -22,6 +23,7 @@ def failures_for_file(filename):
             failure_status = row['failure']
             failures[serial_number] = failure_status
     return failures
+
 
 def write_curr_day_with_failures(failures_dict={}, curr_day_filename='', output_filename=''):
     with open(curr_day_filename, 'r') as curr_day_csv_file: # open current day file
