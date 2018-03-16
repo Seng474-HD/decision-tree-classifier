@@ -7,6 +7,10 @@
 
 import csv
 import pdb
+import os
+
+DATA_DIR = '../hd-data'
+OUTPUT_DIR = '../hd-data/output'
 
 def failures_for_file(filename):
     failures = {}
@@ -18,9 +22,6 @@ def failures_for_file(filename):
             failure_status = row['failure']
             failures[serial_number] = failure_status
     return failures
-
-def fails_next_day(serial_no):
-    return next_day_failures[serial_no]
 
 def write_curr_day_with_failures(failures_dict={}, curr_day_filename='', output_filename=''):
     with open(curr_day_filename, 'r') as curr_day_csv_file: # open current day file
@@ -40,12 +41,20 @@ def write_curr_day_with_failures(failures_dict={}, curr_day_filename='', output_
                     row['fails_next_day'] = fails_next_day
                     datawriter.writerow(row)
 
-# january
-# for day in range(1,31)
-curr_day_filename = '../hd-data/2017-01-01.csv'
-next_day_filename = '../hd-data/2017-01-02.csv'
-output_filename = '../hd-data/2017-01-01fn.csv' # day 1 with fails next day appended
 
-next_day_failures = failures_for_file(next_day_filename)
+input_files = list(filter(lambda x:  os.path.splitext(x)[1] == '.csv', os.listdir(DATA_DIR)))
+input_files.sort()
 
-write_curr_day_with_failures(next_day_failures, curr_day_filename, output_filename)
+for i in range(len(input_files) - 1):
+    curr_day_filename = input_files[i]
+    curr_day_filename_base = os.path.splitext(curr_day_filename)[0]
+    next_day_filename = input_files[i + 1]
+
+    curr_day_filepath = os.path.join(DATA_DIR, curr_day_filename)
+    next_day_filepath = os.path.join(DATA_DIR, next_day_filename)
+
+    output_filepath = os.path.join(OUTPUT_DIR, curr_day_filename_base + 'fn.csv')
+
+    print('writing next day failures from ' + curr_day_filename + ' to ' + output_filepath)
+    next_day_failures = failures_for_file(next_day_filepath)
+    write_curr_day_with_failures(next_day_failures, curr_day_filepath, output_filepath)
