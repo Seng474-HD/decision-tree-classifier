@@ -1,10 +1,3 @@
-# load data for day. grab serial number of each row.
-# load data for the next day , and just keep serial number and failed columns
-
-# Add failed_next_day column to first day data
-
-# classify failed_next_day as 0 or 1 based on first day attributes
-
 import csv
 import pdb
 import os
@@ -17,7 +10,6 @@ def failures_for_file(filename):
     failures = {}
     with open(filename, 'r') as csvfile:
         datareader = csv.DictReader(csvfile, delimiter=',', quotechar='|')
-        # header = datareader.__next__()
         for row in datareader:
             serial_number = row['serial_number']
             failure_status = row['failure']
