@@ -73,7 +73,7 @@ start_time = time.time()
 
 with open(DATA_FILE_PATH, 'r') as input_file:
     reader = csv.reader(input_file, delimiter=',', quotechar='|')
-    reader.__next__() # skip header
+    next(reader) # skip header
 
     row_idx = 0
     for row in reader:
@@ -88,11 +88,45 @@ with open(DATA_FILE_PATH, 'r') as input_file:
 end_time = time.time()
 print('Time elapsed: ', end_time - start_time)
 
-X_train = X[:NUM_TRAIN_ROWS]
-X_test = X[NUM_TRAIN_ROWS:]
 
-Y_train = Y[:NUM_TRAIN_ROWS]
-Y_test = Y[NUM_TRAIN_ROWS:]
+X_train = []
+X_test = []
+
+if os.environ.get('BALANCE_TYPE') is not None:
+    if os.environ['BALANCE_TYPE'] == "undersample":
+        X_fail = []
+        X_non_fail = []
+        Y_fail = []
+        Y_non_fail = []
+
+        num_failures = 0
+        for i in range(len(X)):
+            row_train = X[i]
+            row_class = Y[i]
+            if row_class == 1:
+                num_failures += 1
+                X_fail.append(row_train)
+                Y_fail.append(row_class)
+            else:
+                X_non_fail.append(row_train)
+                Y_non_fail.append(row_class)
+
+        num_failures = len(X_fail)
+        num_train = (num_failures*9)/10
+
+        X_non_fail = X_non_fail[:num_failures]
+        Y_non_fail = Y_non_fail[:num_failures]
+
+        X_train = X_fail[:num_train] + X_non_fail[:num_train]
+        X_test = X_fail[num_train:] + X_non_fail[num_train:]
+        Y_train = Y_fail[:num_train] + Y_non_fail[:num_train]
+        Y_test = Y_fail[num_train:] + Y_non_fail[num_train:]
+
+else:
+    X_train = X[:NUM_TRAIN_ROWS]
+    X_test = X[NUM_TRAIN_ROWS:]
+    Y_train = Y[:NUM_TRAIN_ROWS]
+    Y_test = Y[NUM_TRAIN_ROWS:]
 
 print('Fitting classifier on training data')
 start_time = time.time()
@@ -112,5 +146,3 @@ errors = np.mean(preds != Y_test)
 print('Prediction error: ', errors)
 baseline_errors = np.mean(baseline_preds != Y_test)
 print('Baseline error (always predicting non-fail): ', baseline_errors)
-
-pdb.set_trace()
