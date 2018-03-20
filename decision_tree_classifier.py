@@ -14,6 +14,7 @@ NUM_ROWS = 1915631 # manually checked because eff reading the whole thing in fir
 
 NUM_TRAIN_ROWS = 1500000
 NUM_PRED_ROWS = 1500000
+OVERSAMPLING_FACTOR = 100
 
 # SMART stats from the decision tree paper
 # 1- Raw Read Error Rate - 
@@ -110,9 +111,9 @@ if os.environ.get('BALANCE_TYPE') is not None:
             Y_non_fail.append(row_class)
 
     if os.environ['BALANCE_TYPE'] == "oversample":
-        X_fail = X_fail * 100
-        Y_fail = Y_fail * 100
-        num_failures = num_failures * 100
+        X_fail = X_fail * OVERSAMPLING_FACTOR
+        Y_fail = Y_fail * OVERSAMPLING_FACTOR
+        num_failures = num_failures * OVERSAMPLING_FACTOR
 
     num_train = (num_failures*9)/10
     X_non_fail = X_non_fail[:num_failures]
