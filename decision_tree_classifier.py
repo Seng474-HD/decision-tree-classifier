@@ -93,25 +93,39 @@ X_train = []
 X_test = []
 
 if os.environ.get('BALANCE_TYPE') is not None:
+    X_fail = []
+    X_non_fail = []
+    Y_fail = []
+    Y_non_fail = []
+    num_failures = 0
+    for i in range(len(X)):
+        row_train = X[i]
+        row_class = Y[i]
+        if row_class == 1:
+            num_failures += 1
+            X_fail.append(row_train)
+            Y_fail.append(row_class)
+        else:
+            X_non_fail.append(row_train)
+            Y_non_fail.append(row_class)
+
     if os.environ['BALANCE_TYPE'] == "undersample":
-        X_fail = []
-        X_non_fail = []
-        Y_fail = []
-        Y_non_fail = []
+        num_train = (num_failures*9)/10
 
-        num_failures = 0
-        for i in range(len(X)):
-            row_train = X[i]
-            row_class = Y[i]
-            if row_class == 1:
-                num_failures += 1
-                X_fail.append(row_train)
-                Y_fail.append(row_class)
-            else:
-                X_non_fail.append(row_train)
-                Y_non_fail.append(row_class)
+        X_non_fail = X_non_fail[:num_failures]
+        Y_non_fail = Y_non_fail[:num_failures]
 
-        num_failures = len(X_fail)
+        X_train = X_fail[:num_train] + X_non_fail[:num_train]
+        X_test = X_fail[num_train:] + X_non_fail[num_train:]
+        Y_train = Y_fail[:num_train] + Y_non_fail[:num_train]
+        Y_test = Y_fail[num_train:] + Y_non_fail[num_train:]
+
+    elif os.environ['BALANCE_TYPE'] == "oversample":
+
+        pdb.set_trace()
+        X_fail = X_fail * 100
+        Y_fail = Y_fail * 100
+        num_failures = num_failures * 100
         num_train = (num_failures*9)/10
 
         X_non_fail = X_non_fail[:num_failures]
