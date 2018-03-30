@@ -12,7 +12,7 @@ CLASS_LABEL_INDEX = -1
 NUM_ATTRS = 91
 NUM_ROWS = 1915631 # manually checked because eff reading the whole thing in first
 
-NUM_TRAIN_ROWS = NUM_ROWS/5
+NUM_TRAIN_ROWS = NUM_ROWS//5
 
 # this loads just the january data
 
@@ -20,6 +20,7 @@ X = np.zeros((NUM_ROWS, NUM_ATTRS))
 Y = np.zeros(NUM_ROWS)
 
 start_time = time.time()
+print("hi")
 with open(DATA_FILE_PATH, 'r') as input_file:
     reader = csv.reader(input_file, delimiter=',', quotechar='|')
     reader.__next__() # skip header
@@ -41,10 +42,10 @@ clf = MLPClassifier(activation='logistic', solver='sgd', learning_rate='adaptive
 
 totalerrors = 0
 for i in range(5):
-    X_train = X[:NUM_TRAIN_ROWS*i] + X[NUM_TRAIN_ROWS*(i+1):]
+    X_train = np.append(X[:NUM_TRAIN_ROWS*i], X[NUM_TRAIN_ROWS*(i+1):], axis=0)
     X_test = X[NUM_TRAIN_ROWS*i:NUM_TRAIN_ROWS*(i+1)]
-
-    Y_train = Y[:NUM_TRAIN_ROWS*i] + Y[NUM_TRAIN_ROWS*(i+1):]
+    
+    Y_train = np.append(Y[:NUM_TRAIN_ROWS*i], Y[NUM_TRAIN_ROWS*(i+1):], axis=0)
     Y_test = Y[NUM_TRAIN_ROWS*i:NUM_TRAIN_ROWS*(i+1)]
 
     print('Fitting classifier on training data')
@@ -65,4 +66,3 @@ print('Average prediction error: ', avgerrors)
 baseline_errors = np.mean(baseline_preds != Y_test)
 print('Baseline error (always predicting non-fail): ', baseline_errors)
 
-pdb.set_trace()
